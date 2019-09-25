@@ -5,12 +5,9 @@ defmodule ExWatsonTranslator do
 
   @doc """
   Hello world.
-
   ## Examples
-
       iex> ExWatsonTranslator.hello()
       :world
-
   """
   def hello do
     :world

@@ -7,7 +7,21 @@ defmodule ExWatsonTranslator.MixProject do
       version: "0.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+
+      # Testing
+      test_coverage: [
+        tool: ExCoveralls
+      ],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
+
+      # Dialyzer
+      dialyzer: dialyzer()
     ]
   end
 
@@ -21,8 +35,20 @@ defmodule ExWatsonTranslator.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:httpoison, "~> 1.3.0"},
+      {:poison, "~> 4.0"},
+
+      # Test
+      {:excoveralls, "~> 0.9", only: :test},
+
+      # Code Analisis
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false}
+    ]
+  end
+
+  defp dialyzer do
+    [
+      ignore_warnings: "dialyzer.ignore-warnings"
     ]
   end
 end

@@ -28,3 +28,7 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env()}.exs"
+
+config :ex_watson_translator, url: "https://gateway.watsonplatform.net/language-translator/api"
+config :ex_watson_translator, version: System.get_env("VERSION") || "2018-05-01"
+config :ex_watson_translator, api_key: System.get_env("APIKEY")
