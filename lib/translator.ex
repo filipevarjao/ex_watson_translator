@@ -7,4 +7,5 @@ defmodule Translator do
   @type text :: String.t()
 
   @callback translate(map()) :: {:ok, Response.t()} | {:error, Error.t()}
+  @callback identify() :: {:ok, Response.t()} | {:error, Error.t()}
 end
