@@ -26,13 +26,26 @@ defmodule TranslatorRemoteAPI do
     |> HTTPoison.get(header)
   end
 
+  @impl Translator
+  def list_documents do
+    header = build_header()
+
+    @url
+    |> String.replace("translate?", "documents?")
+    |> HTTPoison.get(header)
+  end
+
   defp build_body(params) do
     text = Map.get(params, :text)
     model_id = Map.get(params, :model_id)
+    source = Map.get(params, :source, "")
+    target = Map.get(params, :target, "")
 
     Poison.encode!(%{
       "text" => text,
-      "model_id" => model_id
+      "model_id" => model_id,
+      "source" => source,
+      "target" => target
     })
   end
 

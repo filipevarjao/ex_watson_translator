@@ -45,4 +45,14 @@ defmodule TranslatorRemoteAPITest do
       refute "" == language
     end
   end
+
+  describe "Translate documents" do
+    test "list documents that have been submitted for translation" do
+      assert {:ok, %{status_code: 200, body: body}} = TranslatorRemoteAPI.list_documents()
+      returned_body = Poison.decode(body)
+
+      assert {:ok, %{"documents" => list_of_documents}} = returned_body
+      assert is_list(list_of_documents)
+    end
+  end
 end
