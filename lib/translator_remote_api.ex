@@ -1,5 +1,6 @@
 defmodule TranslatorRemoteAPI do
   alias Translator
+  alias Utils.Formats, as: Formart
 
   @behaviour Translator
 
@@ -27,7 +28,36 @@ defmodule TranslatorRemoteAPI do
   end
 
   @impl Translator
-  def list_documents do
+  def delete(document_id) when is_binary(document_id) do
+    header = build_header()
+
+    url =
+      @url
+      |> String.replace("translate", "documents/" <> document_id)
+
+    HTTPoison.delete(url, header)
+  end
+
+  @impl Translator
+  def status(document_id) when is_binary(document_id) do
+    header = build_header()
+
+    @url
+    |> String.replace("translate", "documents/" <> document_id)
+    |> HTTPoison.get(header)
+  end
+
+  @impl Translator
+  def translated(document_id) when is_binary(document_id) do
+    header = build_header()
+
+    @url
+    |> String.replace("translate", "documents/" <> document_id <> "/translated_document")
+    |> HTTPoison.get(header)
+  end
+
+  @impl Translator
+  def documents do
     header = build_header()
 
     @url
@@ -35,18 +65,35 @@ defmodule TranslatorRemoteAPI do
     |> HTTPoison.get(header)
   end
 
-  defp build_body(params) do
-    text = Map.get(params, :text)
-    model_id = Map.get(params, :model_id)
-    source = Map.get(params, :source, "")
-    target = Map.get(params, :target, "")
+  @impl Translator
+  def documents({:multipart, data}) do
+    case build_body(data) do
+      {:error, msg} ->
+        {:error, msg}
 
-    Poison.encode!(%{
-      "text" => text,
-      "model_id" => model_id,
-      "source" => source,
-      "target" => target
-    })
+      body ->
+        extension = :proplists.get_value(:header, data)
+        header = build_header(extension)
+
+        @url
+        |> String.replace("translate?", "documents?")
+        |> HTTPoison.post({:multipart, body} , header)
+      end
+  end
+
+  defp build_body(data) when is_list(data) do
+    file_path = :proplists.get_value(:file, data)
+    {:ok, file_binary} = File.read(file_path)
+
+    if byte_size(file_binary) < Formart.size_limit() do
+     :proplists.delete(:header, data)
+    else
+      {:error, "Maximum file size: 20 MB"}
+    end
+  end
+
+  defp build_body(%{text: _, model_id: _} = params) do
+    Poison.encode!(params)
   end
 
   defp build_header, do: build_header(:json)
@@ -57,6 +104,15 @@ defmodule TranslatorRemoteAPI do
     [
       {"Authorization", "Basic " <> api_key},
       @json_header
+    ]
+  end
+
+  defp build_header(extension) do
+    api_key = "apikey:#{@api_key}" |> Base.encode64()
+
+    [
+      {"Authorization", "Basic " <> api_key},
+      {"Content-Type", extension}
     ]
   end
 end
