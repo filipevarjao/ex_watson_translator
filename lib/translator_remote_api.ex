@@ -77,8 +77,8 @@ defmodule TranslatorRemoteAPI do
 
         @url
         |> String.replace("translate?", "documents?")
-        |> HTTPoison.post({:multipart, body} , header)
-      end
+        |> HTTPoison.post({:multipart, body}, header)
+    end
   end
 
   defp build_body(data) when is_list(data) do
@@ -86,7 +86,7 @@ defmodule TranslatorRemoteAPI do
     {:ok, file_binary} = File.read(file_path)
 
     if byte_size(file_binary) < Formart.size_limit() do
-     :proplists.delete(:header, data)
+      :proplists.delete(:header, data)
     else
       {:error, "Maximum file size: 20 MB"}
     end

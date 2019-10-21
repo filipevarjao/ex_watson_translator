@@ -109,8 +109,7 @@ defmodule TranslatorRemoteAPITest do
 
       document_id = get_available_status(list_of_documents)
 
-      assert {:ok, %{status_code: 200, body: body}} =
-               TranslatorRemoteAPI.translated(document_id)
+      assert {:ok, %{status_code: 200, body: body}} = TranslatorRemoteAPI.translated(document_id)
 
       assert is_binary(body)
       assert bit_size(body) > 0
@@ -143,10 +142,11 @@ defmodule TranslatorRemoteAPITest do
     list_of_documents
     |> Enum.find(fn map -> map["status"] == "available" end)
     |> Map.get("document_id")
-    |> case  do
+    |> case do
       "" ->
         Process.sleep(1000)
         get_available_status(list_of_documents)
+
       document_id ->
         document_id
     end
